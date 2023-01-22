@@ -1,14 +1,14 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 import sys, os
 
 def usage():
     print("%s -m old.map -p old.ped -d old.dat -o new.prefix" % sys.argv[0] )
     print("lift old.map (optionally .ped and .dat) to new.prefix.map (.ped/.dat if possible)")
- 
+
 def die(msg):
     print msg
     sys.exit(2)
- 
+
 def myopen(fn):
     import gzip
     try:
@@ -19,7 +19,7 @@ def myopen(fn):
         return open(fn)
     h.close()
     return gzip.open(fn)
- 
+
 def map2bed(fin, fout):
     fo = open(fout, 'w')
     for ln in myopen(fin):
@@ -29,7 +29,7 @@ def map2bed(fin, fout):
         fo.write('%s\t%d\t%d\t%s\n' % (chrom, pos-1, pos, rs))
     fo.close()
     return True
- 
+
 # global var:
 LIFTED_SET = set()
 UNLIFTED_SET = set()
@@ -51,9 +51,9 @@ def liftBed(fin, fout, funlifted):
     for ln in myopen(params['NEW']):
         if len(ln) == 0 or ln[0] == '#':continue
         LIFTED_SET.add(ln.strip().split()[-1])
- 
+
     return True
- 
+
 def bed2map(fin, fout):
     fo = open(fout, 'w')
     for ln in myopen(fin):
@@ -62,7 +62,7 @@ def bed2map(fin, fout):
         fo.write('%s\t%s\t0.0\t%s\n' % (chrom, rs, pos1))
     fo.close()
     return True
- 
+
 def liftDat(fin, fout):
     fo = open(fout, 'w')
     for ln in myopen(fin):
@@ -74,7 +74,7 @@ def liftDat(fin, fout):
                 fo.write(ln)
     fo.close()
     return True
- 
+
 def liftPed(fin, fout, fOldMap):
     # two ways to do it:
     # 1. write unlifted snp list
@@ -97,17 +97,17 @@ def liftPed(fin, fout, fOldMap):
         newMarker = [m for i, m in enumerate(f[6:]) if flag[i]]
         fo.write('\t'.join(newMarker))
         fo.write('\n')
-        #print marker[:10]      
+        #print marker[:10]
         #die('test')
     return True
- 
+
 def makesure(result, succ_msg, fail_msg = "ERROR"):
     if result:
         print 'SUCC: ', succ_msg
     else:
         print 'FAIL: ', fail_msg
         sys.exit(2)
- 
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='')
@@ -116,25 +116,25 @@ if __name__ == '__main__':
     parser.add_argument('-d', dest='datFile')
     parser.add_argument('-o', dest='prefix', required = True)
     args = parser.parse_args()
- 
+
     oldBed = args.mapFile + '.bed'
     makesure(map2bed(args.mapFile, oldBed),
              'map->bed succ')
- 
+
     newBed = args.prefix + '.bed'
     unlifted = args.prefix + '.unlifted'
     makesure(liftBed(oldBed, newBed, unlifted),
              'liftBed succ')
- 
+
     newMap = args.prefix + '.map'
     makesure(bed2map(newBed, newMap),
              'bed->map succ')
- 
+
     if args.datFile:
         newDat = args.prefix + '.dat'
         makesure(liftDat(args.datFile, newDat),
                  'liftDat succ')
- 
+
     if args.pedFile:
         newPed = args.prefix + '.ped'
         makesure(liftPed(args.pedFile, newPed, args.mapFile),
