@@ -40,7 +40,6 @@ liftmap=$(readlink -f bin/LiftMap.py)
 vcf_sort=$(readlink -f bin/vcf-sort)
 bgzip=$(readlink -f bin/bgzip)
 bcftools=$(readlink -f bin/bcftools)
-hg19=$(readlink -f ref/human_g1k_v37.fasta)
 
 memory_tot=$(free -m|awk '/^Mem:/{print $2}')
 memory=$(echo "$memory_tot/$nb_proc" | bc)
@@ -78,6 +77,7 @@ if [ ! -f ../ref/human_g1k_v37.fasta ]; then
   wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.fai -P ref/
   $gunzip ref/human_g1k_v37.fasta.gz
 fi
+hg19=$(readlink -f ref/human_g1k_v37.fasta)
 
 echo $(date): Downloading...
 if [ ! -f ../opensnp_datadump.current.zip ]; then
